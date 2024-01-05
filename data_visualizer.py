@@ -1,27 +1,57 @@
 import matplotlib.pyplot as plt
+import tkinter as tk
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-def visualize_pie_chart(data):
-    labels = data.keys()
-    sizes = data.values()
 
+def create_chart_window(fig, title):
+    """
+    Create a new Tkinter window for a chart.
+
+    Parameters:
+        fig (matplotlib.figure.Figure): The Matplotlib figure object.
+        title (str): The title of the chart.
+    """
+    chart_window = tk.Tk()
+    chart_window.title(title)
+    canvas = FigureCanvasTkAgg(fig, master=chart_window)
+    canvas.draw()
+    canvas.get_tk_widget().pack()
+    canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+
+    # Start the Tkinter main loop
+    chart_window.mainloop()
+
+
+def generate_pie_chart(data, title):
+    """
+    Generate a Pie Chart based on the given data.
+
+    Parameters:
+        data (dict): A dictionary where keys represent categories and values represent counts.
+        title (str): The title of the pie chart.
+    """
     fig, ax = plt.subplots()
-    wedges, texts, autotexts = ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90 )
+    ax.pie(data.values(), labels=data.keys(), autopct="%1.1f%%")
+    ax.set_title(title)
 
-    # Adding legend
-    ax.legend(wedges, labels, title="Departments", loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
-
-    # Equal aspect ratio ensures that pie is drawn as a circle.
-    ax.axis('equal')
-
-    # Display the plot
-    plt.show()
+    create_chart_window(fig, title)
 
 
-def visualize_histogram(data):
-    # Assuming data is a list of distances
-    plt.hist(data, bins=20, color='blue', edgecolor='black')
-    plt.xlabel('Distance from Home')
-    plt.ylabel('Frequency')
-    plt.title('Histogram of Distance from Home')
-    plt.grid(True)
-    plt.show()
+def generate_histogram(data, xlabel, ylabel, title):
+    """
+    Generate a histogram based on the given data.
+
+    Parameters:
+        data (list): A list of values for the histogram.
+        xlabel (str): Label for the x-axis.
+        ylabel (str): Label for the y-axis.
+        title (str): The title of the histogram.
+    """
+    fig, ax = plt.subplots()
+    ax.hist(data, bins=20, color="blue", edgecolor="black")
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    ax.set_title(title)
+    ax.grid(True)
+
+    create_chart_window(fig, title)

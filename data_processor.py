@@ -1,15 +1,28 @@
+from matplotlib.pyplot import margins
+import json
+
+
 class DataRetriever:
     def __init__(self, data):
         self.data = data
 
+    # Retrieve the total number of records that have been loaded
     def total_records(self):
         return len(self.data) if self.data else 0
 
-    def unique_departments(self):
-        return (
-            list(set(record["Department"] for record in self.data)) if self.data else []
-        )
+    # list of unique department names.
+    def get_department_data(self):
+        department_data = {}
+        for record in self.data:
+            department = record.get("Department")
+            if department:
+                if department in department_data:
+                    department_data[department] += 1
+                else:
+                    department_data[department] = 1
+        return department_data
 
+    # the record for an employee using an employee id as specified  by the user.
     def retrieve_employee_by_id(self, employee_id):
         return (
             next(
@@ -24,32 +37,45 @@ class DataRetriever:
             else None
         )
 
+    def get_education(self, num):
+        num = int(num)
+        if num == 1:
+            return "GCSE"
+        elif num == 2:
+            return "A-Levels"
+        elif num == 3:
+            return "Bachelor"
+        elif num == 4:
+            return "Master"
+        elif num == 5:
+            return "Doctorate"
+
     def print_employee_details(self, records, header):
         if records:
             print(
                 f"""
-                +----------------------------------------------------------------------+
-                |{header:^70}|
-                +----------------------------------------------------------------------+""",
+                        +----------------------------------------------------+
+                        |{header.center(52)}|
+                        +----------------------------------------------------+""",
                 end="",
             )
+
             for record in records:
                 print(
                     f"""
-                |             Employee ID  : {record['EmployeeID']:25}                 |  
-                |             Age          : {record['Age']:18}                        |  
-                |             Gender       : {record['Gender']:21}                     |  
-                |             Education    : {record['Education']:24}                  |  
-                |             Job Role     : {record['JobRole']:22}                    |  
-                | {'     -------------------------------------':69}| """,
+                        |             Employee ID  : {record['EmployeeID']:20}    |  
+                        |             Age          : {record['Age']:10}              |  
+                        |             Gender       : {record['Gender']:13}           |  
+                        |             Education    : {self.get_education(record['Education']):16}        |  
+                        |             Job Role     : {record['JobRole']:18}      |  
+                        | {'     -------------------------------------':51}| """,
                     end="",
                 )
-            print(
-                "\n\t\t|______________________________________________________________________|"
-            )
+            print("\n\t\t\t|____________________________________________________|")
         else:
             print(f"\n\t\t\t[!] No records found.")
 
+    # the records for employees that work in a particular  department as specified by the user
     def retrieve_employee_by_department(self, department, visible=False):
         records_in_department = [
             record for record in self.data if record["Department"] == department
@@ -59,6 +85,7 @@ class DataRetriever:
             return records_in_department
         self.print_employee_details(records_in_department, header)
 
+    # the records for employees that work in a particular  department and have a particular role as specified by the user
     def retrieve_employee_by_department_and_role(self, department, role):
         records_with_role = [
             record
@@ -71,6 +98,7 @@ class DataRetriever:
         self.print_employee_details(records_with_role, header)
         return records_with_role
 
+    # the records for all employees grouped by the job role.
     def group_records_by_job_role(self):
         grouped_records = {}
         for record in self.data:
@@ -81,7 +109,21 @@ class DataRetriever:
                 grouped_records[job_role] = [record]
         return grouped_records
 
-    def department_summary(self, department):
+    # worklife balance
+    def worklife(self, num):
+        num = int(num)
+
+        if num == 0:
+            return "Bad"
+        elif num == 1:
+            return "Good"
+        elif num == 2:
+            return "Better"
+        elif num == 3:
+            return "Best"
+
+    # summary of the attrition data for a department as specified by the user.
+    def department_summary(self, department, export=False):
         department_records = [
             record for record in self.data if record["Department"] == department
         ]
@@ -90,7 +132,6 @@ class DataRetriever:
             print(f"\n\t\t\t[!] No records found for department '{department}'.")
             return
 
-        # Calculate statistics
         ## The number of employees in the department.
         num_employees = len(department_records)
 
@@ -160,61 +201,96 @@ class DataRetriever:
         never_travel_percentage = (num_never_travel / num_employees) * 100
 
         ##  The mean, standard deviation and variance for the hourly rate of employees in the department.
-        ### Calculate mean
+        ### calculating mean
         mean_hourly_rate = sum(hourly_rates) / num_employees
 
-        ### Calculate variance
+        ### calculating variance
         squared_diff = []
         for rate in hourly_rates:
             squared_diff.append((rate - mean_hourly_rate) ** 2)
         variance_hourly_rate = sum(squared_diff) / num_employees
 
-        ### Calculate standard deviation
+        ### calculating standard deviation
         std_hourly_rate = variance_hourly_rate**0.5
 
-        ##  The average work-life balance for the department.
+        ##  calculating average work-life balance for the department.
         work_life_balances = [
             float(record["WorkLifeBalance"]) for record in department_records
         ]
-        avg_work_life_balance = sum(work_life_balances) / num_employees
+        avg_worklife_balance = sum(work_life_balances) / num_employees
 
-        ##  The average attrition rate for the department.
+        ##  calculating average attrition rate for the department.
         attrition_rates = [
             1 if record["Attrition"] == "Yes" else 0 for record in department_records
         ]
         avg_attrition_rate = sum(attrition_rates) / num_employees
 
-        print(
-            f"""
-            +------------------------------------------------------------------------+
-            |               Summary for Department: {department:11} {'':20} |
-            +------------------------------------------------------------------------+
-            | Number of Employees                  : {num_employees:5} {'':25} |
-            | Number of Male Employees             : {num_male:5} {'':25} |
-            | Number of Female Employees           : {num_female:5} {'':25} | 
-            | Minimum Age                          : {min_age:5} {'':25} | 
-            | Maximum Age                          : {max_age:5} {'':25} | 
-            | Average Age                          : {avg_age:.2f} {'':25} | 
-            | Minimum Distance                     : {min_distance:5} {'':25} | 
-            | Maximum Distance                     : {max_distance:5} {'':25} | 
-            | Average Distance                     : {avg_distance:.2f} {'':25}  | 
-            | Minimum Hourly Rate                  : {min_hourly_rate:5} {'':25} | 
-            | Maximum Hourly Rate                  : {max_hourly_rate:5} {'':25} | 
-            | Average Hourly Rate                  : {avg_hourly_rate:5.2f} {'':24}  | 
-            | Percentage of Single Employees       : {single_percentage:5.2f}% {'':24} |
-            | Percentage of Married Employees      : {married_percentage:5.2f}% {'':24} |
-            | Percentage of Divorced Employees     : {divorced_percentage:5.2f}% {'':24} |
-            | Percentage of Frequently Travel      : {frequently_travel_percentage:5.2f}% {'':24} |
-            | Percentage of Rarely Travel          : {rarely_travel_percentage:5.2f}% {'':24} |
-            | Percentage of Never Travel           : {never_travel_percentage:5.2f}% {'':24} |
-            | Mean for Hourly Rate                 : {mean_hourly_rate:5.2f} {'':25} |
-            | Standard Deviation for Hourly Rate   : {std_hourly_rate:5.2f} {'':25} |
-            | Variance for Hourly Rate             : {variance_hourly_rate:5.2f} {'':25} |
-            | Average Work Life Balance            : {avg_work_life_balance:.2f} {'':25}  | 
-            | Average Attrition Rate               : {avg_attrition_rate:.2%} {'':24}  | 
-            +------------------------------------------------------------------------+
-        """
-        )
+        if not export:
+            print(
+                f"""
+                            +--------------------------------------------------------------+
+                            |               Summary for Department: {department:11} {'':9}  |
+                            +--------------------------------------------------------------+
+                            | Number of Employees                  : {num_employees:^6} {'':14} |
+                            | Number of Male Employees             : {num_male:^6} {'':14} |
+                            | Number of Female Employees           : {num_female:^6} {'':14} | 
+                            | Minimum Age                          : {min_age:^6} {'':14} | 
+                            | Maximum Age                          : {max_age:^6} {'':14} | 
+                            | Average Age                          : {avg_age:^6.2f} {'':14} | 
+                            | Minimum Distance                     : {min_distance:^6} {'':14} | 
+                            | Maximum Distance                     : {max_distance:^6} {'':14} | 
+                            | Average Distance                     : {avg_distance:^6.2f} {'':13}  | 
+                            | Minimum Hourly Rate                  : {min_hourly_rate:^6} {'':14} | 
+                            | Maximum Hourly Rate                  : {max_hourly_rate:^6} {'':14} | 
+                            | Average Hourly Rate                  : {avg_hourly_rate:^6.2f} {'':13}  | 
+                            | Percentage of Single Employees       : {single_percentage:^5.2f}% {'':14} |
+                            | Percentage of Married Employees      : {married_percentage:^5.2f}% {'':14} |
+                            | Percentage of Divorced Employees     : {divorced_percentage:^5.2f}% {'':14} |
+                            | Percentage of Frequently Travel      : {frequently_travel_percentage:^5.2f}% {'':14} |
+                            | Percentage of Rarely Travel          : {rarely_travel_percentage:^5.2f}% {'':14} |
+                            | Percentage of Never Travel           : {never_travel_percentage:^5.2f}% {'':14} |
+                            | Mean Hourly Rate                     : {mean_hourly_rate:^6.2f} {'':14} |
+                            | Standard Deviation of Hourly Rate    : {std_hourly_rate:^6.2f} {'':14} |
+                            | Variance of Hourly Rate              : {variance_hourly_rate:^6.2f} {'':14} |
+                            | Average Work Life Balance            : {self.worklife(avg_worklife_balance):^6} {'':13}  | 
+                            | Average Attrition Rate               : {avg_attrition_rate:^6.2%} {'':13}  | 
+                            +--------------------------------------------------------------+
+            """
+            )
+
+        if export:
+            output_file_path = f"{department}.json"
+            summary_json_data = {
+                "department": department,
+                "num_employees": num_employees,
+                "num_males": num_male,
+                "num_females": num_female,
+                "minimum_age": min_age,
+                "maximum_age": max_age,
+                "average_age": round(avg_age, 2),
+                "minimum_distance": min_distance,
+                "maximum_distance": max_distance,
+                "average_distance": round(avg_distance, 2),
+                "minimum_hourly_rate": min_hourly_rate,
+                "maximum_hourly_rate": max_hourly_rate,
+                "average_hourly_rate": round(avg_hourly_rate, 2),
+                "percentage_of_single_employee": round(single_percentage, 2),
+                "percentage_of_married_employee": round(married_percentage, 2),
+                "percentage_of_divorced_employee": round(divorced_percentage, 2),
+                "pct_of_frequently_travel": round(frequently_travel_percentage, 2),
+                "pct_of_rarely_travel": round(rarely_travel_percentage, 2),
+                "pct_of_never_travel": round(never_travel_percentage, 2),
+                "mean_hourly_rate": round(mean_hourly_rate, 2),
+                "std_dvt_hourly_rate": round(std_hourly_rate, 2),
+                "variance_hourly_rate": round(variance_hourly_rate, 2),
+                "avg_worklife_balance": self.worklife(avg_worklife_balance),
+                "avg_attrition_rate": round(avg_attrition_rate, 2),
+            }
+            with open(output_file_path, "w") as json_file:
+                json.dump(summary_json_data, json_file)
+
+            print(f"\n\t\t\t[+] Department summary exported to '{output_file_path}'.")
+            return
 
     def get_distance_data(self):
         return [
