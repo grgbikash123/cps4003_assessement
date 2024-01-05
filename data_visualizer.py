@@ -16,3 +16,12 @@ def visualize_pie_chart(data):
     # Display the plot
     plt.show()
 
+
+def visualize_histogram(data):
+    # Assuming data is a list of distances
+    plt.hist(data, bins=20, color='blue', edgecolor='black')
+    plt.xlabel('Distance from Home')
+    plt.ylabel('Frequency')
+    plt.title('Histogram of Distance from Home')
+    plt.grid(True)
+    plt.show()

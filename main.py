@@ -1,6 +1,6 @@
 from data_loader import DataLoader
 from data_processor import DataRetriever
-from data_visualizer import visualize_pie_chart
+from data_visualizer import visualize_pie_chart, visualize_histogram
 
 # a) The system will present the user with a text-based user interface through which a user will select options to load the data, process the data, visualise the data, and export the data.
 def process_the_loaded_data(retriever):
@@ -14,12 +14,14 @@ def process_the_loaded_data(retriever):
                             | 2. Retrieve a List of Unique Departments          |
                             | 3. Retrieve Employee Record by ID                 |
                             | 4. Retrieve Employees by Department               |
-                            | 5. Retrieve Employees by Department and Role      |
-                            | 6. Back to Menu                                   |
+                            | 5. Retrieve Employees by Department and Job Role  |
+                            | 6. Retreive Employees grouped by Job Role         |
+                            | 7. Retreive summary for Department                |
+                            | 8. Back to Menu                                   |
                             |___________________________________________________|
         """)
 
-        choice = input("\t\t\tEnter your choice (1/2/3/4/5/6): ")
+        choice = input("\t\t\tEnter your choice (1/2/3/4/5/6/7/8): ")
 
         if choice == '1':
             total_records = retriever.total_records()
@@ -85,6 +87,18 @@ def process_the_loaded_data(retriever):
             records = retriever.retrieve_employee_by_department_and_role(department_to_retrieve, role_to_retrieve)
 
         elif choice == '6':
+            # Retrieve the records for all employees grouped by job role
+            grouped_records_by_job_role = retriever.group_records_by_job_role()
+            for job_role, records in grouped_records_by_job_role.items():
+                header = f"Records for '{job_role}' job role {'':26}"
+                retriever.print_employee_details(records, header)
+
+        elif choice == '7':
+            # Retrieve a summary of the attrition data for a department
+            department_to_summary = input("\n\t\t\tEnter the department to retrieve the summary: ")
+            retriever.department_summary(department_to_summary)
+
+        elif choice == '8':
             return
 
         else:
@@ -97,18 +111,23 @@ def visualize_data(system):
                         |               Nurse Attrition System : Menu > Visualize                 | 
                         --------------------------------------------------------------------------+
                         | 1. Display a pie chart of the number of employees in each department    |
-                        | 2. Back to Menu                                                         |
+                        | 2. Display a histogram of the distance employees work from home         |
+                        | 3. Back to Menu                                                         |
                         +-------------------------------------------------------------------------+
 
               """)
 
-        choice = input("\t\t\tEnter your choice (1/2): ")
+        choice = input("\t\t\tEnter your choice (1/2/3): ")
 
         if choice == '1':
             # Display a pie chart of the number of employees in each department
             department_counts = {department: len(system.retrieve_employee_by_department(department,visible=True)) for department in system.unique_departments()}
             visualize_pie_chart(department_counts)
-        elif choice == '2':
+        if choice == '2':
+            # Display a pie chart of the number of employees in each department
+            distance_data = system.get_distance_data()
+            visualize_histogram(distance_data)
+        elif choice == '3':
             return
         else:
             print("\n\t\t\tInvalid choice")
@@ -160,11 +179,13 @@ def main():
 
 if __name__ == "__main__":
     main()
-    # data_loader = DataLoader()
-    # data_loader.load_data("../some.csv")
-    # data_retriever = DataRetriever(data_loader.data)
     """
-    employee_record = data_retriever.retrieve_employee_by_department_and_role("Maternity","Other")
+    data_loader = DataLoader()
+    data_loader.load_data("some.csv")
+    data_retriever = DataRetriever(data_loader.data)
+    department_to_summary = "Neurology"
+    data_retriever.department_summary(department_to_summary)
     """
+    # employee_record = data_retriever.retrieve_employee_by_department_and_role("Maternity","Other")
 
 
