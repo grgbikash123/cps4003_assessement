@@ -121,12 +121,11 @@ def show_home(data, root):
     canvas5.get_tk_widget().pack(side="left", fill="both", expand=True, padx=5)
 
 
-def display_dashboard(retriever):
+def display_dashboard(data):
     root = tk.Tk()
     root.title("Dashboard")
     # root.state("zoomed")                     # uncomment if below doesn't work, this doesn't work for linux X11
 
-    data = retriever.data
 
     # -----------------------------------------------------------------------------------------------------------
     #                       Dashboard at top_frame
