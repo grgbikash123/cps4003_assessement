@@ -1,13 +1,26 @@
 from data_loader import load_data
-from data_processor import get_total_records, get_department_data, retrieve_employee_by_id, get_education, retrieve_employee_by_department, retrieve_employee_by_department_and_role, group_records_by_job_role, print_employee_list, department_summary, get_distance_data, get_worklife_balance
+from data_processor import (
+    get_total_records,
+    get_department_data,
+    retrieve_employee_by_id,
+    get_education,
+    retrieve_employee_by_department,
+    retrieve_employee_by_department_and_role,
+    group_records_by_job_role,
+    print_employee_list,
+    get_department_summary,
+    get_distance_data,
+    get_worklife_balance,
+)
 from data_visualizer import generate_pie_chart, generate_histogram
 
 from dashboard import display_dashboard
 
-# global variable 
+# global variable
 data = list()
 
-def print_employee_info(data,emp_id):
+
+def print_employee_info(data, emp_id):
     emp_id = int(emp_id)
     employee_record = retrieve_employee_by_id(data, emp_id)
 
@@ -34,14 +47,13 @@ def print_employee_info(data,emp_id):
                 )
                 continue
 
-            print(
-                f"""                                |   {key:19}: {value:21} |"""
-            )
+            print(f"""                                |   {key:19}: {value:21} |""")
         print(
             """                                |______________________________________________|"""
         )
     else:
         print(f"\n\t\t\tEmployee with id {emp_id} doesn't exist.")
+
 
 # a) The system will present the user with a text-based user interface through which a user will select options to load the data, process the data, visualise the data, and export the data.
 def process_the_loaded_data(data):
@@ -103,7 +115,9 @@ def process_the_loaded_data(data):
             department_to_retrieve = input(
                 "\n\t\t\tEnter the department to retrieve records: "
             ).strip()
-            records = retrieve_employee_by_department(data=data, department=department_to_retrieve)
+            records = retrieve_employee_by_department(
+                data=data, department=department_to_retrieve
+            )
 
         elif choice == "5":
             department_to_retrieve = input(
@@ -113,9 +127,7 @@ def process_the_loaded_data(data):
                 "\t\t\tEnter the role to retrieve records: "
             ).strip()
             records = retrieve_employee_by_department_and_role(
-                data=data,
-                department=department_to_retrieve, 
-                role=role_to_retrieve
+                data=data, department=department_to_retrieve, role=role_to_retrieve
             )
 
         elif choice == "6":
@@ -130,7 +142,7 @@ def process_the_loaded_data(data):
             department_to_summary = input(
                 "\n\t\t\tEnter the department to retrieve the summary: "
             ).strip()
-            department_summary(data=data,department=department_to_summary)
+            department_summary(data=data, department=department_to_summary)
 
         elif choice == "8":
             return
@@ -185,13 +197,19 @@ def visualize_data(data):
             print("\n\t\t\tInvalid choice")
 
 
-def export_json(data):
+def export_summary_of(data):
     department = input("\n\t\t\tEnter the department to retrieve the summary: ").strip()
-    department_summary(data=data, department=department, export=True)
+    get_department_summary(data=data, department=department, export=True)
+
+
+def is_loaded(data):
+    if data is not None and len(data) > 0:
+        return True
+    else:
+        return False
 
 
 def main():
-
     while True:
         print(
             """
@@ -231,7 +249,7 @@ def main():
                 print("\n\t\t\t [!] Data not loaded. Please load data first.")
         elif choice == "4":
             try:
-                export_json(data=data)
+                export_summary_of(data=data)
             except UnboundLocalError:
                 print("\n\t\t\t [!] Data not loaded. Please load data first.")
         elif choice == "5":
@@ -243,5 +261,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-    

@@ -2,12 +2,14 @@ from matplotlib.pyplot import margins
 import json
 from enum import Enum
 
+
 # Retrieve the total number of records that have been loaded
 def get_total_records(data):
     if data:
         return len(data)
     else:
         return 0
+
 
 # list of unique department names.
 def get_department_data(data):
@@ -21,12 +23,14 @@ def get_department_data(data):
                 department_data[department] = 1
     return department_data
 
+
 # the record for an employee using an employee id as specified  by the user.
 def retrieve_employee_by_id(data, employee_id):
     for record in data:
         if int(record["EmployeeID"]) == employee_id:
             return record
     return None
+
 
 class EducationLevel(Enum):
     GCSE = 1
@@ -40,9 +44,9 @@ def get_education(num):
     num = int(num)
     return EducationLevel(num).name
 
+
 def print_employee_list(records, header):
     if records:
-
         print(
             f"""
                             +---------------------------------------------------------------------+
@@ -62,32 +66,34 @@ def print_employee_list(records, header):
                             | {'            -------------------------------------':68}| """,
                 end="",
             )
-        print("\n\t\t\t    |_____________________________________________________________________|")
+        print(
+            "\n\t\t\t    |_____________________________________________________________________|"
+        )
     else:
         print(f"\n\t\t\t[!] No records found.")
 
+
 # the records for employees that work in a particular  department as specified by the user
-def retrieve_employee_by_department(data, department, visible=False):
+def retrieve_employee_by_department(data, department):
     records_in_department = [
         record for record in data if record["Department"] == department
     ]
     header = f"       Records for '{department}' department {'':10}"
-    if visible:
-        return records_in_department
     print_employee_list(records_in_department, header)
+
 
 # the records for employees that work in a particular  department and have a particular role as specified by the user
 def retrieve_employee_by_department_and_role(data, department, role):
-    records_with_role = [
-        record
-        for record in data
-        if record["Department"] == department and record["JobRole"] == role
-    ]
+    records_with_role = []
+    for record in data:
+        if record["Department"] == department and record["JobRole"] == role:
+            records_with_role.append(record)
     header = (
         f"   Records for employee from '{department}' department and '{role}' role "
     )
     print_employee_list(records_with_role, header)
     return records_with_role
+
 
 # the records for all employees grouped by the job role.
 def group_records_by_job_role(data):
@@ -99,6 +105,7 @@ def group_records_by_job_role(data):
         else:
             grouped_records[job_role] = [record]
     return grouped_records
+
 
 # worklife balance
 class WorkLifeBalance(Enum):
@@ -112,8 +119,9 @@ def get_worklife_balance(num):
     num = int(num)
     return WorkLifeBalance(num).name
 
+
 # summary of the attrition data for a department as specified by the user.
-def department_summary(data, department, export=False):
+def get_department_summary(data, department, export=False):
     department_records = [
         record for record in data if record["Department"] == department
     ]
@@ -204,12 +212,6 @@ def department_summary(data, department, export=False):
     std_hourly_rate = variance_hourly_rate**0.5
 
     ##  calculating average work-life balance for the department.
-    print(f"""
-                --------------------------------------------------
-                     DEBUG record["WorkLifeBalance"] : {record["WorkLifeBalance"]}
-                --------------------------------------------------
-          
-          """)
     work_life_balances = [
         float(record["WorkLifeBalance"]) for record in department_records
     ]
@@ -288,9 +290,12 @@ def department_summary(data, department, export=False):
         print(f"\n\t\t\t[+] Department summary exported to '{output_file_path}'.")
         return
 
+
 def get_distance_data(data):
-    return [
-        int(record["DistanceFromHome"])
-        for record in data
-        if "DistanceFromHome" in record
-    ]
+    distance_data = []
+
+    for record in data:
+        if "DistanceFromHome" in record:
+            distance_data.append(int(record["DistanceFromHome"]))
+
+    return distance_data

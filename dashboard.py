@@ -2,6 +2,7 @@ import tkinter as tk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
 
+
 def show_home(data, root):
     # Chart 1: Bar chart of Age Distribution
     ages = [int(staff["Age"]) for staff in data]
@@ -125,7 +126,6 @@ def display_dashboard(data):
     root = tk.Tk()
     root.title("Dashboard")
     # root.state("zoomed")                     # uncomment if below doesn't work, this doesn't work for linux X11
-
 
     # -----------------------------------------------------------------------------------------------------------
     #                       Dashboard at top_frame
