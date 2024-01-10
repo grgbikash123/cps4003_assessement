@@ -1,4 +1,3 @@
-from matplotlib.pyplot import margins
 import json
 from enum import Enum
 
@@ -288,7 +287,7 @@ def get_department_summary(data, department, export=False):
             json.dump(summary_json_data, json_file)
 
         print(f"\n\t\t\t[+] Department summary exported to '{output_file_path}'.")
-        return
+        return summary_json_data
 
 
 def get_distance_data(data):
