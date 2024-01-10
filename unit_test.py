@@ -7,7 +7,6 @@ from data_processor import (
     get_department_summary,
     get_department_data,
 )
-from dashboard import show_home
 
 sample_csv_path = "nurse_attrition.csv"
 sample_data = load_data(sample_csv_path)
@@ -16,16 +15,13 @@ sample_data = load_data(sample_csv_path)
 def test_load_data():
     loaded_data = load_data(sample_csv_path)
 
-    # Assertions to check if the loaded data has the expected structure
     assert isinstance(loaded_data, list), "Loaded data should be a list"
     assert len(loaded_data) > 0, "Loaded data should not be empty"
 
-    # Assuming your data structure has specific fields, modify the assertions accordingly
     sample_record = loaded_data[0]
     assert "EmployeeID" in sample_record, "EmployeeID field is missing"
     assert "Age" in sample_record, "Age field is missing"
     assert "Gender" in sample_record, "Gender field is missing"
-    # ... add more assertions for other expected fields
 
     print("Data loading unit test passed successfully.")
 
@@ -81,10 +77,9 @@ def test_get_department_data():
 
 
 def test_get_department_summary():
-    department = "Neurology"  # Assuming a department from your sample data
+    department = "Neurology"
     summary = get_department_summary(sample_data, department, export=True)
 
-    # Adjust the following assertions based on the expected structure of the summary
     assert "num_employees" in summary
     assert "num_males" in summary
     assert "num_females" in summary
