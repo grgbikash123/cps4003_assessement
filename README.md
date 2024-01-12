@@ -4,12 +4,23 @@
 To run use following command: 
 > python main.py
 
+## Necessary Packages
 
-## TESTING
-To run unit test 
+* `matplotlib`
+* `tk`
+* `pytest`
 
-- make sure `pytest` is installed if not install it using 
+use following commands
+> pip install matplotlib 
+> pip install tk
 > pip install pytest
 
-- to run unit test use folllowing command 
+
+## TESTING
+
+To run unit test 
 > pytest unit_test.py
+
+
+
+
