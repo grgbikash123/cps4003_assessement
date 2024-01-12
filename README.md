@@ -11,10 +11,11 @@ To run use following command:
 * `pytest`
 
 use following commands
-> pip install matplotlib 
-> pip install tk
-> pip install pytest
-
+```
+pip install matplotlib
+pip install tk
+pip install pytest
+```
 
 ## TESTING
 
