@@ -142,7 +142,7 @@ def process_the_loaded_data(data):
             department_to_summary = input(
                 "\n\t\t\tEnter the department to retrieve the summary: "
             ).strip()
-            department_summary(data=data, department=department_to_summary)
+            get_department_summary(data=data, department=department_to_summary)
 
         elif choice == "8":
             return
